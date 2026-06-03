@@ -46,4 +46,10 @@ public class Calendar {
         this.owner = owner;
         this.createdAt = LocalDateTime.now();
     }
+
+    public void update(String title, String description, String color) {
+        this.title = title;
+        this.description = description;
+        this.color = color;
+    }
 }
