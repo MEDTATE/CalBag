@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Integer> {
 
-    @Query("SELECT c FROM Calendar c JOIN c.members m WHERE m.user.id = :userId")
+    @Query("SELECT c FROM Calendar c JOIN c.members m JOIN FETCH c.owner WHERE m.user.id = :userId")
     List<Calendar> findAllByUserId(@Param("userId") Integer userId);
 }
