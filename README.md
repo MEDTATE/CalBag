@@ -14,6 +14,7 @@ Timetree를 레퍼런스로 한 공유 캘린더 백엔드 API 서비스입니�
 | Auth | Spring Security + JWT |
 | Documentation | Swagger (springdoc-openapi) |
 | Build | Gradle 8.14 |
+| CI | GitHub Actions |
 
 ## 기술 선택 이유
 
@@ -200,6 +201,10 @@ CREATE INDEX idx_events_calendar_date ON events (calendar_id, start_at, end_at);
 ```
 
 **결과**: key_len=12 (세 컬럼 모두 인덱스 사용), Extra=Using index condition (인덱스 레벨 필터링)으로 개선.
+
+## CI
+
+GitHub Actions를 통해 main 브랜치 push 시 자동으로 빌드 및 테스트가 실행됩니다.
 
 ## 실행 방법
 
