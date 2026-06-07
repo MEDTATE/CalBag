@@ -12,6 +12,7 @@ import com.medtate.CalBag.event.repository.EventRepository;
 import com.medtate.CalBag.global.exception.BusinessException;
 import com.medtate.CalBag.user.domain.User;
 import com.medtate.CalBag.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -29,6 +30,7 @@ public class EventService {
     private final CalendarRepository calendarRepository;
     private final CalendarMemberRepository calendarMemberRepository;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
     @Transactional
     public EventResponse createEvent(Integer userId, Integer calendarId, EventCreateRequest request) {
@@ -93,6 +95,10 @@ public class EventService {
 
         if (role == CalendarRole.VIEWER) {
             throw new BusinessException("뷰어는 일정을 수정할 수 없습니다.", HttpStatus.FORBIDDEN);
+        }
+
+        if (!event.getVersion().equals(request.getVersion())) {
+            throw new BusinessException("다른 사용자가 이미 수정했습니다. 다시 시도해주세요.", HttpStatus.CONFLICT);
         }
 
         try {
