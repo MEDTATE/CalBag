@@ -70,6 +70,9 @@ jobs:
             refresh-token-expiration: 604800000
           EOF
 
+      - name: Gradle 실행 권한 부여
+        run: chmod +x ./gradlew
+
       - name: Gradle 빌드 및 테스트
         run: ./gradlew build
 
