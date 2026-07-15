@@ -255,10 +255,15 @@ List<Notification> findByUserIdAndStatusIn(@Param("userId") Integer userId,
 
 **원인**: `calendar_id` 외래키 인덱스만 사용되고 있었습니다(`key_len=4`, `Extra=Using where`). 해당 캘린더의 전체 일정 2,000건을 읽은 뒤 날짜 조건으로 필터링하는 구조로, 실제 필요한 행은 217건이었습니다.
 
-**개선**: `(calendar_id, start_at, end_at)` 복합 인덱스를 추가해 인덱스 레벨에서 날짜 범위까지 필터링하도록 했습니다.
+**개선**: `(calendar_id, start_at, end_at)` 복합 인덱스를 추가해 인덱스 레벨에서 날짜 범위까지 필터링하도록 했습니다. 인덱스는 엔티티에 선언해 스키마와 함께 관리됩니다.
 
-```sql
-CREATE INDEX idx_events_calendar_date ON events (calendar_id, start_at, end_at);
+```java
+@Table(
+    name = "events",
+    indexes = @Index(name = "idx_events_calendar_date",
+                     columnList = "calendar_id, start_at, end_at")
+)
+public class Event { ... }
 ```
 
 **결과** (일정 10만 건 · 동일 쿼리 3회 실행 후 안정값)

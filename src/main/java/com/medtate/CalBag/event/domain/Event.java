@@ -10,8 +10,13 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "events")
-@Getter
+@Table(
+        name = "events",
+        indexes = @Index(
+                name = "idx_events_calendar_date",
+                columnList = "calendar_id, start_at, end_at"
+        )
+)@Getter
 @NoArgsConstructor
 public class Event {
 
