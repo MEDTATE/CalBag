@@ -35,7 +35,6 @@ public class CalendarService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .color(request.getColor())
-                .owner(user)
                 .build();
 
         calendarRepository.save(calendar);

@@ -1,6 +1,5 @@
 package com.medtate.CalBag.calendar.domain;
 
-import com.medtate.CalBag.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,10 +27,6 @@ public class Calendar {
     @Column(nullable = false)
     private String color;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
-
     @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CalendarMember> members = new ArrayList<>();
 
@@ -39,11 +34,10 @@ public class Calendar {
     private LocalDateTime createdAt;
 
     @Builder
-    public Calendar(String title, String description, String color, User owner) {
+    public Calendar(String title, String description, String color) {
         this.title = title;
         this.description = description;
         this.color = color;
-        this.owner = owner;
         this.createdAt = LocalDateTime.now();
     }
 

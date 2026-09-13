@@ -61,7 +61,6 @@ class EventServiceTest {
                         .title("테스트 캘린더")
                         .description("설명")
                         .color("#FF0000")
-                        .owner(testUser)
                         .build()
         );
 
