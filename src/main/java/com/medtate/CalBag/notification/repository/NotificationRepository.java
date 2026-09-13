@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
@@ -14,6 +15,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     @Query("SELECT n FROM Notification n JOIN FETCH n.event WHERE n.user.id = :userId AND n.status IN :statuses")
     List<Notification> findByUserIdAndStatusIn(@Param("userId") Integer userId,
                                                @Param("statuses") List<NotificationStatus> statuses);
+
+    List<Notification> findByStatusAndScheduledAtLessThanEqual(NotificationStatus status, LocalDateTime now);
 
     boolean existsByEventIdAndUserIdAndType(Integer eventId, Integer userId, NotificationType type);
 }

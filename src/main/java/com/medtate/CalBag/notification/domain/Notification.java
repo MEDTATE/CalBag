@@ -10,7 +10,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notifications")
+@Table( name = "notifications",
+        indexes = @Index(
+            name = "idx_notifications_status_scheduled_at",
+            columnList = "status, scheduled_at"
+        )
+)
 @Getter
 @NoArgsConstructor
 public class Notification {

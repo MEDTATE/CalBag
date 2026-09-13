@@ -1,5 +1,6 @@
 package com.medtate.CalBag.notification.service;
 
+import com.medtate.CalBag.calendar.repository.CalendarMemberRepository;
 import com.medtate.CalBag.event.domain.Event;
 import com.medtate.CalBag.event.repository.EventRepository;
 import com.medtate.CalBag.global.exception.BusinessException;
@@ -9,7 +10,6 @@ import com.medtate.CalBag.notification.domain.NotificationType;
 import com.medtate.CalBag.notification.dto.NotificationCreateRequest;
 import com.medtate.CalBag.notification.dto.NotificationResponse;
 import com.medtate.CalBag.notification.repository.NotificationRepository;
-import com.medtate.CalBag.notification.scheduler.NotificationScheduler;
 import com.medtate.CalBag.user.domain.User;
 import com.medtate.CalBag.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -28,7 +27,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final NotificationScheduler notificationScheduler;
+    private final CalendarMemberRepository calendarMemberRepository;
 
     @Transactional
     public NotificationResponse createNotification(Integer userId, Integer eventId,
@@ -38,6 +37,10 @@ public class NotificationService {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new BusinessException("일정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        if (!calendarMemberRepository.existsByCalendarIdAndUserId(event.getCalendar().getId(), userId)) {
+            throw new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
+        }
 
         if (notificationRepository.existsByEventIdAndUserIdAndType(eventId, userId, request.getType())) {
             throw new BusinessException("같은 유형의 알림이 이미 설정되어 있습니다.", HttpStatus.CONFLICT);
@@ -57,11 +60,6 @@ public class NotificationService {
                 .build();
 
         notificationRepository.save(notification);
-
-        notificationScheduler.scheduleNotification(
-                notification.getId(),
-                scheduledAt.atZone(ZoneId.systemDefault()).toInstant()
-        );
 
         return new NotificationResponse(notification);
     }

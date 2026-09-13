@@ -13,11 +13,6 @@ spring:
         format_sql: true
     show-sql: true
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
 jwt:
   secret: thisIsASecretKeyForJwtTokenGenerationAndItMustBeAtLeast256BitsLong
   access-token-expiration: 1800000
