@@ -1,7 +1,6 @@
 package com.medtate.CalBag.event.service;
 
 import com.medtate.CalBag.calendar.domain.Calendar;
-import com.medtate.CalBag.calendar.domain.CalendarRole;
 import com.medtate.CalBag.calendar.repository.CalendarMemberRepository;
 import com.medtate.CalBag.calendar.repository.CalendarRepository;
 import com.medtate.CalBag.event.domain.Event;
@@ -83,14 +82,8 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new BusinessException("일정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-        CalendarRole role = calendarMemberRepository
-                .findByCalendarIdAndUserId(event.getCalendar().getId(), userId)
-                .orElseThrow(() -> new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN))
-                .getRole();
-
-        if (role == CalendarRole.VIEWER) {
-            throw new BusinessException("뷰어는 일정을 수정할 수 없습니다.", HttpStatus.FORBIDDEN);
-        }
+        calendarMemberRepository.findByCalendarIdAndUserId(event.getCalendar().getId(), userId)
+                .orElseThrow(() -> new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN));
 
         if (!event.getVersion().equals(request.getVersion())) { // manual check
             throw new BusinessException("다른 사용자가 이미 수정했습니다. 다시 시도해주세요.", HttpStatus.CONFLICT);
@@ -107,14 +100,8 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new BusinessException("일정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-        CalendarRole role = calendarMemberRepository
-                .findByCalendarIdAndUserId(event.getCalendar().getId(), userId)
-                .orElseThrow(() -> new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN))
-                .getRole();
-
-        if (role == CalendarRole.VIEWER) {
-            throw new BusinessException("뷰어는 일정을 삭제할 수 없습니다.", HttpStatus.FORBIDDEN);
-        }
+        calendarMemberRepository.findByCalendarIdAndUserId(event.getCalendar().getId(), userId)
+                .orElseThrow(() -> new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN));
 
         eventRepository.delete(event);
     }

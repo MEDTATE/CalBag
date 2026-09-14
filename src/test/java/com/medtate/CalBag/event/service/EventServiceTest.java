@@ -56,6 +56,7 @@ class EventServiceTest {
                         .build()
         );
 
+
         testCalendar = calendarRepository.save(
                 Calendar.builder()
                         .title("테스트 캘린더")
@@ -110,30 +111,36 @@ class EventServiceTest {
     }
 
     @Test
-    @DisplayName("VIEWER 권한은 일정을 수정할 수 없다")
-    void updateEvent_viewerCannotUpdate() {
-        User viewer = userRepository.save(
-                User.builder()
-                        .email("viewertest@test.com")
-                        .passwordHash("hashedpassword")
-                        .name("뷰어")
-                        .build()
-        );
+    @DisplayName("캘린더 멤버가 아니면 일정을 수정할 수 없다")
+    void updateEvent_nonMemberCannotUpdate() {
+        User outsider = saveUser("outsider@test.com");
+
+        EventUpdateRequest request = createUpdateRequest("비멤버 수정 시도", testEvent.getVersion());
+
+        assertThatThrownBy(() ->
+                eventService.updateEvent(outsider.getId(), testEvent.getId(), request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("접근 권한이 없습니다");
+    }
+
+    @Test
+    @DisplayName("EDITOR 권한은 일정을 수정할 수 있다")
+        void updateEvent_editorCanUpdate() {
+        User editor = saveUser("editor@test.com");
 
         calendarMemberRepository.save(
                 CalendarMember.builder()
                         .calendar(testCalendar)
-                        .user(viewer)
-                        .role(CalendarRole.VIEWER)
+                        .user(editor)
+                        .role(CalendarRole.EDITOR)
                         .build()
         );
 
-        EventUpdateRequest request = createUpdateRequest("뷰어 수정 시도", testEvent.getVersion());
+        EventUpdateRequest request = createUpdateRequest("에디터 수정", testEvent.getVersion());
 
-        assertThatThrownBy(() ->
-                eventService.updateEvent(viewer.getId(), testEvent.getId(), request))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("뷰어는 일정을 수정할 수 없습니다");
+        EventResponse response = eventService.updateEvent(editor.getId(), testEvent.getId(), request);
+
+        assertThat(response.getTitle()).isEqualTo("에디터 수정");
     }
 
     private EventUpdateRequest createUpdateRequest(String title, Integer version) {
@@ -144,4 +151,15 @@ class EventServiceTest {
                 false, version
         );
     }
+
+
+    private User saveUser(String email) {
+        return userRepository.save(
+                User.builder()
+                        .email(email)
+                        .passwordHash("hashedpassword")
+                        .name("테스트유저")
+                        .build()
+    );
+}
 }
