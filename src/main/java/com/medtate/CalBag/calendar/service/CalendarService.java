@@ -7,6 +7,7 @@ import com.medtate.CalBag.calendar.dto.CalendarCreateRequest;
 import com.medtate.CalBag.calendar.dto.CalendarResponse;
 import com.medtate.CalBag.calendar.dto.CalendarUpdateRequest;
 import com.medtate.CalBag.calendar.dto.InviteCodeResponse;
+import com.medtate.CalBag.calendar.dto.MemberResponse;
 import com.medtate.CalBag.calendar.repository.CalendarMemberRepository;
 import com.medtate.CalBag.calendar.repository.CalendarRepository;
 import com.medtate.CalBag.global.exception.BusinessException;
@@ -140,5 +141,17 @@ public class CalendarService {
             sb.append(CODE_CHARS.charAt(RANDOM.nextInt(CODE_CHARS.length())));
         }
         return sb.toString();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberResponse> getMembers(Integer userId, Integer calendarId) {
+        if (!calendarMemberRepository.existsByCalendarIdAndUserId(calendarId, userId)) {
+            throw new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
+        }
+
+        return calendarMemberRepository.findAllWithUserByCalendarId(calendarId)
+                .stream()
+                .map(MemberResponse::new)
+                .toList();
     }
 }

@@ -5,6 +5,7 @@ import com.medtate.CalBag.calendar.dto.CalendarResponse;
 import com.medtate.CalBag.calendar.dto.CalendarUpdateRequest;
 import com.medtate.CalBag.calendar.dto.InviteCodeResponse;
 import com.medtate.CalBag.calendar.dto.JoinCalendarRequest;
+import com.medtate.CalBag.calendar.dto.MemberResponse;
 import com.medtate.CalBag.calendar.service.CalendarService;
 import com.medtate.CalBag.global.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -67,6 +68,14 @@ public class CalendarController {
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody JoinCalendarRequest request) {
         CalendarResponse response = calendarService.joinByInviteCode(userId.intValue(), request.getCode());
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @GetMapping("/{calendarId}/members")
+    public ResponseEntity<ApiResponse<List<MemberResponse>>> getMembers(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Integer calendarId) {
+        List<MemberResponse> response = calendarService.getMembers(userId.intValue(), calendarId);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 }
