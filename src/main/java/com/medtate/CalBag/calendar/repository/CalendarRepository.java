@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Integer> {
 
     @Query("SELECT c FROM Calendar c JOIN c.members m WHERE m.user.id = :userId")
     List<Calendar> findAllByUserId(@Param("userId") Integer userId);
+
+    Optional<Calendar> findByInviteCode(String inviteCode);
 }

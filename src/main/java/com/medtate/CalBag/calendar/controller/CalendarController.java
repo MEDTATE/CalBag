@@ -3,6 +3,8 @@ package com.medtate.CalBag.calendar.controller;
 import com.medtate.CalBag.calendar.dto.CalendarCreateRequest;
 import com.medtate.CalBag.calendar.dto.CalendarResponse;
 import com.medtate.CalBag.calendar.dto.CalendarUpdateRequest;
+import com.medtate.CalBag.calendar.dto.InviteCodeResponse;
+import com.medtate.CalBag.calendar.dto.JoinCalendarRequest;
 import com.medtate.CalBag.calendar.service.CalendarService;
 import com.medtate.CalBag.global.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -50,5 +52,21 @@ public class CalendarController {
             @PathVariable Integer calendarId) {
         calendarService.deleteCalendar(userId.intValue(), calendarId);
         return ResponseEntity.ok(ApiResponse.ok(null));
+    }
+
+    @PostMapping("/{calendarId}/invite-code")
+    public ResponseEntity<ApiResponse<InviteCodeResponse>> issueInviteCode(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Integer calendarId) {
+        InviteCodeResponse response = calendarService.issueInviteCode(userId.intValue(), calendarId);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<ApiResponse<CalendarResponse>> joinCalendar(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody JoinCalendarRequest request) {
+        CalendarResponse response = calendarService.joinByInviteCode(userId.intValue(), request.getCode());
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 }

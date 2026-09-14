@@ -33,6 +33,11 @@ public class Calendar {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(unique = true)
+    private String inviteCode;
+
+    private LocalDateTime inviteCodeExpiresAt;
+
     @Builder
     public Calendar(String title, String description, String color) {
         this.title = title;
@@ -45,5 +50,10 @@ public class Calendar {
         this.title = title;
         this.description = description;
         this.color = color;
+    }
+
+    public void issueInviteCode(String code, LocalDateTime expiresAt) {
+        this.inviteCode = code;
+        this.inviteCodeExpiresAt = expiresAt;
     }
 }
