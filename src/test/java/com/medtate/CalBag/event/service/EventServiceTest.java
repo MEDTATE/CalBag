@@ -111,6 +111,17 @@ class EventServiceTest {
     }
 
     @Test
+    @DisplayName("일정 수정 응답에는 증가한 version이 담긴다")
+    void updateEvent_responseHasIncrementedVersion() {
+        Integer before = testEvent.getVersion();
+        EventUpdateRequest request = createUpdateRequest("수정된 회의", before);
+
+        EventResponse response = eventService.updateEvent(testUser.getId(), testEvent.getId(), request);
+
+        assertThat(response.getVersion()).isEqualTo(before + 1);
+    }
+
+    @Test
     @DisplayName("일정 수정 시 version이 불일치하면 충돌 에러가 발생한다")
     void updateEvent_optimisticLockConflict() {
         Integer wrongVersion = testEvent.getVersion() + 999;

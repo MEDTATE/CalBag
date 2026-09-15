@@ -93,7 +93,7 @@ public class EventService {
 
         event.update(request.getTitle(), request.getDescription(), request.getColor(),
                 request.getStartAt(), request.getEndAt(), request.isAllDay());
-        eventRepository.save(event);
+        eventRepository.saveAndFlush(event);
         return new EventResponse(event);
     }
 
