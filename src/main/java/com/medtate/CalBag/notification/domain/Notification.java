@@ -59,10 +59,6 @@ public class Notification {
         this.sentAt = LocalDateTime.now();
     }
 
-    public void markAsFailed() {
-        this.status = NotificationStatus.FAILED;
-    }
-
     public void markAsRead() {
         this.status = NotificationStatus.READ;
     }
