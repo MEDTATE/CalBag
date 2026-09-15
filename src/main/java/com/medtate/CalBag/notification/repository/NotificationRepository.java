@@ -31,4 +31,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     @Query("DELETE FROM Notification n WHERE n.event.id IN (SELECT e.id FROM Event e WHERE e.calendar.id = :calendarId)")
     void deleteByCalendarId(@Param("calendarId") Integer calendarId);
 
+    @Modifying
+    @Query("DELETE FROM Notification n WHERE n.event.id = :eventId")
+    void deleteByEventId(@Param("eventId") Integer eventId);
+
 }

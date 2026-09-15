@@ -9,6 +9,7 @@ import com.medtate.CalBag.event.dto.EventResponse;
 import com.medtate.CalBag.event.dto.EventUpdateRequest;
 import com.medtate.CalBag.event.repository.EventRepository;
 import com.medtate.CalBag.global.exception.BusinessException;
+import com.medtate.CalBag.notification.repository.NotificationRepository;
 import com.medtate.CalBag.user.domain.User;
 import com.medtate.CalBag.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class EventService {
     private final CalendarRepository calendarRepository;
     private final CalendarMemberRepository calendarMemberRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public EventResponse createEvent(Integer userId, Integer calendarId, EventCreateRequest request) {
@@ -103,6 +105,7 @@ public class EventService {
         calendarMemberRepository.findByCalendarIdAndUserId(event.getCalendar().getId(), userId)
                 .orElseThrow(() -> new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN));
 
+        notificationRepository.deleteByEventId(eventId);
         eventRepository.delete(event);
     }
 }

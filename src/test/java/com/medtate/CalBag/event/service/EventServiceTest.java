@@ -10,8 +10,14 @@ import com.medtate.CalBag.event.dto.EventResponse;
 import com.medtate.CalBag.event.dto.EventUpdateRequest;
 import com.medtate.CalBag.event.repository.EventRepository;
 import com.medtate.CalBag.global.exception.BusinessException;
+import com.medtate.CalBag.notification.domain.Notification;
+import com.medtate.CalBag.notification.domain.NotificationType;
+import com.medtate.CalBag.notification.repository.NotificationRepository;
 import com.medtate.CalBag.user.domain.User;
 import com.medtate.CalBag.user.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +47,12 @@ class EventServiceTest {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired 
+    private NotificationRepository notificationRepository;
+
+    @Autowired 
+    private EntityManager em;
 
     private User testUser;
     private Calendar testCalendar;
@@ -141,6 +153,28 @@ class EventServiceTest {
         EventResponse response = eventService.updateEvent(editor.getId(), testEvent.getId(), request);
 
         assertThat(response.getTitle()).isEqualTo("에디터 수정");
+    }
+
+    @Test
+    @DisplayName("알림이 있는 일정도 삭제할 수 있고, 알림도 함께 삭제된다")
+    void deleteEvent_withNotification() {
+        Notification notification = notificationRepository.save(
+                Notification.builder()
+                        .user(testUser)
+                        .event(testEvent)
+                        .type(NotificationType.TEN_MINUTES_BEFORE)
+                        .scheduledAt(testEvent.getStartAt().minusMinutes(10))
+                        .build()
+        );
+
+        em.flush();
+        em.clear();
+
+        eventService.deleteEvent(testUser.getId(), testEvent.getId());
+        eventRepository.flush();
+
+        assertThat(eventRepository.existsById(testEvent.getId())).isFalse();
+        assertThat(notificationRepository.existsById(notification.getId())).isFalse();
     }
 
     private EventUpdateRequest createUpdateRequest(String title, Integer version) {
