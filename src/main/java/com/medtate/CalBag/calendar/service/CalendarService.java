@@ -10,7 +10,9 @@ import com.medtate.CalBag.calendar.dto.InviteCodeResponse;
 import com.medtate.CalBag.calendar.dto.MemberResponse;
 import com.medtate.CalBag.calendar.repository.CalendarMemberRepository;
 import com.medtate.CalBag.calendar.repository.CalendarRepository;
+import com.medtate.CalBag.event.repository.EventRepository;
 import com.medtate.CalBag.global.exception.BusinessException;
+import com.medtate.CalBag.notification.repository.NotificationRepository;
 import com.medtate.CalBag.user.domain.User;
 import com.medtate.CalBag.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,8 @@ public class CalendarService {
     private final CalendarRepository calendarRepository;
     private final CalendarMemberRepository calendarMemberRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
+    private final EventRepository eventRepository;
 
     @Transactional
     public CalendarResponse createCalendar(Integer userId, CalendarCreateRequest request) {
@@ -95,7 +100,7 @@ public class CalendarService {
             throw new BusinessException("캘린더 삭제는 오너만 가능합니다.", HttpStatus.FORBIDDEN);
         }
 
-        calendarRepository.delete(calendar);
+        deleteCalendarWithEvents(calendar);
     }
 
     @Transactional
@@ -153,5 +158,40 @@ public class CalendarService {
                 .stream()
                 .map(MemberResponse::new)
                 .toList();
+    }
+
+    @Transactional
+    public void removeMember(Integer userId, Integer calendarId, Integer targetUserId) {
+        CalendarMember me = calendarMemberRepository.findByCalendarIdAndUserId(calendarId, userId)
+                .orElseThrow(() -> new BusinessException("접근 권한이 없습니다.", HttpStatus.FORBIDDEN));
+
+        boolean leaving = userId.equals(targetUserId);
+        if (!leaving && me.getRole() != CalendarRole.OWNER) {
+            throw new BusinessException("멤버 내보내기는 오너만 가능합니다.", HttpStatus.FORBIDDEN);
+        }
+
+        CalendarMember target = leaving ? me
+                : calendarMemberRepository.findByCalendarIdAndUserId(calendarId, targetUserId)
+                        .orElseThrow(() -> new BusinessException("멤버를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        if (target.getRole() == CalendarRole.OWNER) { // 오너가 나가는 경우
+            Optional<CalendarMember> successor = calendarMemberRepository
+                    .findFirstByCalendarIdAndRoleNotOrderByJoinedAtAsc(calendarId, CalendarRole.OWNER);
+
+            if (successor.isEmpty()) {
+                deleteCalendarWithEvents(target.getCalendar());
+                return;
+            }
+            successor.get().promoteToOwner();
+        }
+
+        notificationRepository.deleteByUserIdAndCalendarId(targetUserId, calendarId);
+        calendarMemberRepository.delete(target);
+    }
+
+    private void deleteCalendarWithEvents(Calendar calendar) {
+        notificationRepository.deleteByCalendarId(calendar.getId());
+        eventRepository.deleteByCalendarId(calendar.getId());
+        calendarRepository.delete(calendar);
     }
 }

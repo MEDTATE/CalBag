@@ -78,4 +78,13 @@ public class CalendarController {
         List<MemberResponse> response = calendarService.getMembers(userId.intValue(), calendarId);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
+
+    @DeleteMapping("/{calendarId}/members/{memberUserId}")
+    public ResponseEntity<ApiResponse<Void>> removeMember(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Integer calendarId,
+            @PathVariable Integer memberUserId) {
+        calendarService.removeMember(userId.intValue(), calendarId, memberUserId);
+        return ResponseEntity.ok(ApiResponse.ok(null));
+    }
 }

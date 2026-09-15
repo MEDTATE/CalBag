@@ -2,6 +2,7 @@ package com.medtate.CalBag.event.repository;
 
 import com.medtate.CalBag.event.domain.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,4 +17,9 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
             @Param("calendarId") Integer calendarId,
             @Param("startAt") LocalDateTime startAt,
             @Param("endAt") LocalDateTime endAt);
+
+    @Modifying
+    @Query("DELETE FROM Event e WHERE e.calendar.id = :calendarId")
+    void deleteByCalendarId(@Param("calendarId") Integer calendarId);
+
 }

@@ -40,4 +40,8 @@ public class CalendarMember {
         this.role = role;
         this.joinedAt = LocalDateTime.now();
     }
+
+    public void promoteToOwner() {
+        this.role = CalendarRole.OWNER;
+    }
 }
