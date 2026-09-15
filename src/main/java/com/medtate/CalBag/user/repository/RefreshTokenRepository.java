@@ -11,9 +11,9 @@ import com.medtate.CalBag.user.domain.RefreshToken;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Integer> {
 
-    @Modifying 
+    @Modifying
     @Query("DELETE FROM RefreshToken r WHERE r.token = :token")
-    int deleteByToken(@Param ("token") String token);
+    int deleteByToken(@Param("token") String token);
 
     @Modifying
     @Query("DELETE FROM RefreshToken r WHERE r.user.id = :userId AND r.expiresAt < :now")

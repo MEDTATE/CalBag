@@ -10,7 +10,6 @@ import com.medtate.CalBag.user.dto.SignupRequest;
 import com.medtate.CalBag.user.repository.RefreshTokenRepository;
 import com.medtate.CalBag.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

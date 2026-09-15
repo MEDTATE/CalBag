@@ -15,13 +15,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity 
+@Entity
 @Table(name = "refresh_tokens")
-@Getter 
-@NoArgsConstructor 
+@Getter
+@NoArgsConstructor
 public class RefreshToken {
 
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -35,7 +35,7 @@ public class RefreshToken {
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
-    @Builder 
+    @Builder
     public RefreshToken(User user, String token, LocalDateTime expiresAt) {
         this.user = user;
         this.token = token;
