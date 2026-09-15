@@ -3,6 +3,7 @@ package com.medtate.CalBag.user.controller;
 import com.medtate.CalBag.global.response.ApiResponse;
 import com.medtate.CalBag.user.dto.AuthResponse;
 import com.medtate.CalBag.user.dto.LoginRequest;
+import com.medtate.CalBag.user.dto.RefreshTokenRequest;
 import com.medtate.CalBag.user.dto.SignupRequest;
 import com.medtate.CalBag.user.service.AuthService;
 import jakarta.validation.Valid;
@@ -30,5 +31,17 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<AuthResponse>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        AuthResponse response = authService.refresh(request.getRefreshToken());
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody RefreshTokenRequest request) {
+        authService.logout(request.getRefreshToken());
+        return ResponseEntity.ok(ApiResponse.ok(null));
     }
 }

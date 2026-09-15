@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtProvider {
@@ -41,6 +44,7 @@ public class JwtProvider {
     private String generateToken(Long userId, long expiration, String type) {
         return Jwts.builder()
                 .subject(String.valueOf(userId))
+                .id(UUID.randomUUID().toString())
                 .claim(TOKEN_TYPE, type)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
@@ -66,6 +70,12 @@ public class JwtProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public LocalDateTime getExpiresAt(String token) {
+        return getClaims(token).getExpiration().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
     private Claims getClaims(String token) {
